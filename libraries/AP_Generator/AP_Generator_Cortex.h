@@ -22,7 +22,7 @@
 #if AP_GENERATOR_CORTEX_ENABLED
 
 #include "AP_Generator_Backend.h"
-
+#include <AP_PiccoloCAN/piccolo_protocol/CortexPackets.h>
 #include <AP_Logger/AP_Logger_config.h>
 #include <AP_Common/AP_Common.h>
 #include <stdint.h>
@@ -71,6 +71,14 @@ private:
     bool handle_message(AP_HAL::CANFrame &frame);
 
     static AP_Generator_Cortex* _singleton;
+
+    // Internal data structures for received telemetry
+    struct CortexTelemetry_t {
+        Cortex_TelemetryStatus_t status;
+        Cortex_TelemetryGenerator_t generator;
+        Cortex_TelemetryBattery_t battery;
+        Cortex_TelemetryOutputRail_t rails;
+    } telemetry;
 
     friend class AP_PiccoloCAN;
 };

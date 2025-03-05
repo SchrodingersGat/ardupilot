@@ -25,6 +25,8 @@
 #include <GCS_MAVLink/GCS.h>
 #include "AP_Generator_Cortex.h"
 
+#include <AP_Param/AP_Param.h>
+
 
 AP_Generator_Cortex* AP_Generator_Cortex::_singleton;
 
@@ -40,12 +42,25 @@ void AP_Generator_Cortex::init()
 }
 
 
-// Decode received CAN frame
+// Decode received CAN frame    
 bool AP_Generator_Cortex::handle_message(AP_HAL::CANFrame &frame)
 {
-    // TODO: Decode CAN frame
+    bool result = true;
 
-    return false;
+    if (decodeCortex_TelemetryStatusPacketStructure(&frame, &telemetry.status)) {
+        // TODO
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Status Packet");
+    } else if (decodeCortex_TelemetryGeneratorPacketStructure(&frame, &telemetry.generator)) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Generator Packet");
+    } else if (decodeCortex_TelemetryBatteryPacketStructure(&frame, &telemetry.battery)) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Battery Packet");
+    } else if (decodeCortex_TelemetryOutputRailPacketStructure(&frame, &telemetry.rails)) {
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Rails Packet");
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 
