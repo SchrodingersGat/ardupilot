@@ -8,12 +8,14 @@
 #include <AP_BattMonitor/AP_BattMonitor.h>
 
 class AP_Generator_Backend;
+class AP_Generator_Cortex;
 class AP_Generator_IE_650_800;
 class AP_Generator_IE_2400;
 class AP_Generator_RichenPower;
 
 class AP_Generator
 {
+    friend class AP_Generator_Cortex;
     friend class AP_Generator_Backend;
     friend class AP_Generator_IE_650_800;
     friend class AP_Generator_IE_2400;
@@ -92,6 +94,10 @@ private:
         RICHENPOWER = 3,
 #endif
         // LOWEHEISER = 4,
+#if AP_GENERATOR_CORTEX_ENABLED
+        CORTEX = 5,
+#endif
+
     };
 
     // Helper to get param and cast to GenType
