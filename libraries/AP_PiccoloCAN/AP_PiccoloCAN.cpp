@@ -34,6 +34,7 @@
 #include <AP_CANManager/AP_CANManager.h>
 
 #include <AP_EFI/AP_EFI_Currawong_ECU.h>
+#include <AP_Generator/AP_Generator_Cortex.h>
 #include <AP_Servo_Telem/AP_Servo_Telem.h>
 
 #include <stdio.h>
@@ -636,7 +637,12 @@ bool AP_PiccoloCAN::handle_ecu_message(AP_HAL::CANFrame &frame)
 
 bool AP_PiccoloCAN::handle_cortex_message(AP_HAL::CANFrame &frame)
 {
-    // TODO - Implement this...
+    // Get the generator instance
+    AP_Generator_Cortex* gen = AP_Generator_Cortex::get_instance();
+
+    if (gen != nullptr) {
+        return gen->handle_message(frame);
+    }
 
     return false;
 }

@@ -62,8 +62,17 @@ public:
     // present, providing telemetry and not indicating an errors.
     bool healthy() const override;
 
-private:
+    static AP_Generator_Cortex* get_instance(void)
+    {
+        return _singleton;
+    }
 
+private:
+    bool handle_message(AP_HAL::CANFrame &frame);
+
+    static AP_Generator_Cortex* _singleton;
+
+    friend class AP_PiccoloCAN;
 };
 
 #endif // AP_GENERATOR_CORTEX_ENABLED

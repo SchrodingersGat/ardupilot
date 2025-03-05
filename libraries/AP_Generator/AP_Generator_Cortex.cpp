@@ -21,14 +21,31 @@
 
 #if AP_GENERATOR_CORTEX_ENABLED
 
+#include <AP_GPS/AP_GPS.h>
+#include <GCS_MAVLink/GCS.h>
 #include "AP_Generator_Cortex.h"
+
+
+AP_Generator_Cortex* AP_Generator_Cortex::_singleton;
+
 
 void AP_Generator_Cortex::init()
 {
+    _singleton = this;
+
     // Inform frontend which measurements are available for this generator
     _frontend._has_current = true;
     _frontend._has_consumed_energy = false;
     _frontend._has_fuel_remaining = false;
+}
+
+
+// Decode received CAN frame
+bool AP_Generator_Cortex::handle_message(AP_HAL::CANFrame &frame)
+{
+    // TODO: Decode CAN frame
+
+    return false;
 }
 
 
