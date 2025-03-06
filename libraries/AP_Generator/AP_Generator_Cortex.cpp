@@ -21,7 +21,6 @@
 
 #if AP_GENERATOR_CORTEX_ENABLED
 
-#include <AP_GPS/AP_GPS.h>
 #include <GCS_MAVLink/GCS.h>
 #include "AP_Generator_Cortex.h"
 
@@ -48,16 +47,15 @@ bool AP_Generator_Cortex::handle_message(AP_HAL::CANFrame &frame)
     bool result = true;
 
     if (decodeCortex_TelemetryStatusPacketStructure(&frame, &telemetry.status)) {
-        // TODO
-        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Status Packet");
     } else if (decodeCortex_TelemetryGeneratorPacketStructure(&frame, &telemetry.generator)) {
-        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Generator Packet");
     } else if (decodeCortex_TelemetryBatteryPacketStructure(&frame, &telemetry.battery)) {
-        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Battery Packet");
     } else if (decodeCortex_TelemetryOutputRailPacketStructure(&frame, &telemetry.rails)) {
-        GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Rails Packet");
     } else {
         result = false;
+    }
+
+    if (result) {
+        last_reading_ms = AP_HAL::millis();
     }
 
     return result;
@@ -66,9 +64,14 @@ bool AP_Generator_Cortex::handle_message(AP_HAL::CANFrame &frame)
 
 void AP_Generator_Cortex::update()
 {
-    // TODO: Perform periodic tasks
+    // Update internal readings
 
-    // TODO: Update internal readings
+    _voltage = telemetry.generator.voltage;
+    _current = telemetry.generator.current;
+    _rpm = (uint16_t) abs(telemetry.generator.rpm);
+
+    // TODO: Estimate consumed mAh
+    // TODO: Estimate fuel remaining?
 
     update_frontend();
 
@@ -84,12 +87,45 @@ bool AP_Generator_Cortex::pre_arm_check(char *failmsg, uint8_t failmsg_len) cons
 
 void AP_Generator_Cortex::send_generator_status(const GCS_MAVLINK &channel)
 {
-    // TODO
+    uint64_t status = 0;
+
+    if (!is_connected()) {
+        return;
+    }
+
+    // TODO: Copy status flags from MAV_GENERATOR_STATUS_FLAG enum
+
+    mavlink_msg_generator_status_send(
+        channel.get_chan(),
+        status,
+        (uint16_t) abs(telemetry.generator.rpm),
+        batteryCurrent(),
+        loadCurrent(),
+        generatorPower(),
+        generatorVoltage(),
+        0, // TODO: rectifier temperature
+        0, // TODO: battery current setpoint
+        telemetry.generator.temperature,
+        0, // TODO: runtime
+        0  // TODO: time until maintenance
+    );
+}
+
+
+bool AP_Generator_Cortex::is_connected(void) const
+{
+    const uint32_t now = AP_HAL::millis();
+
+    return (now - last_reading_ms) < 2000;
 }
 
 
 bool AP_Generator_Cortex::healthy() const
 {
+    if (!is_connected()) {
+        return false;
+    }
+
     // TODO: Check if generator is healthy
     return true;
 }

@@ -58,6 +58,8 @@ public:
     // Update front end with voltage, current, and rpm values
     void update_frontend_readings(void);
 
+    bool is_connected(void) const;
+
     // healthy returns true if the generator is not present, or it is
     // present, providing telemetry and not indicating an errors.
     bool healthy() const override;
@@ -79,6 +81,18 @@ private:
         Cortex_TelemetryBattery_t battery;
         Cortex_TelemetryOutputRail_t rails;
     } telemetry;
+
+    float batteryCurrent(void) const { return telemetry.battery.current; }
+    float batteryVoltage(void) const { return telemetry.battery.voltage; }
+
+    float generatorCurrent(void) const { return telemetry.generator.current; }
+    float generatorVoltage(void) const { return telemetry.generator.voltage; }
+    float generatorPower(void) const { return generatorCurrent() * generatorVoltage(); }
+
+    float loadCurrent(void) const { return batteryCurrent() + generatorCurrent(); }
+
+    // Last telemetry reading from the generator
+    uint32_t last_reading_ms;
 
     friend class AP_PiccoloCAN;
 };
