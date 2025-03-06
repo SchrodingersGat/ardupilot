@@ -21,6 +21,7 @@
 
 #if AP_GENERATOR_CORTEX_ENABLED
 
+#include <AP_Logger/AP_Logger.h>
 #include <GCS_MAVLink/GCS.h>
 #include "AP_Generator_Cortex.h"
 
@@ -64,40 +65,88 @@ bool AP_Generator_Cortex::handle_message(AP_HAL::CANFrame &frame)
 
 void AP_Generator_Cortex::update()
 {
+    static bool prev_connection_state = false;
+
+    const bool connected = is_connected();
+
+    if (connected != prev_connection_state) {
+        if (connected) {
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO, "Cortex generator connected");
+        } else {
+            GCS_SEND_TEXT(MAV_SEVERITY_WARNING, "Cortex generator disconnected");
+        }
+    }
+
+    prev_connection_state = connected;
+
     // Update internal readings
-
-    _voltage = telemetry.generator.voltage;
-    _current = telemetry.generator.current;
-    _rpm = (uint16_t) abs(telemetry.generator.rpm);
-
-    // TODO: Estimate consumed mAh
-    // TODO: Estimate fuel remaining?
+    if (connected) {
+        _voltage = telemetry.generator.voltage;
+        _current = telemetry.generator.current;
+        _rpm = (uint16_t) abs(telemetry.generator.rpm);
+    }
 
     update_frontend();
 
+    // TODO: Data logging?
 }
 
 
 bool AP_Generator_Cortex::pre_arm_check(char *failmsg, uint8_t failmsg_len) const
 {
     // TODO: Pre-arm checks
+    if (!is_connected()) {
+        snprintf(failmsg, failmsg_len, "Generator is not connected");
+        return false;
+    }
+
+    // TODO: Check hardware inhibit
+
     return true;
 }
 
 
 void AP_Generator_Cortex::send_generator_status(const GCS_MAVLINK &channel)
 {
-    uint64_t status = 0;
+    uint64_t status_flags = 0;
 
     if (!is_connected()) {
         return;
     }
 
-    // TODO: Copy status flags from MAV_GENERATOR_STATUS_FLAG enum
+    // Copy status flags from MAV_GENERATOR_STATUS_FLAG enum
+    const Cortex_StatusBits_t &status = telemetry.status.status;
+
+    // TODO: Check for inihibit state, and set MAV_GENERATOR_STATUS_FLAG_START_INHIBITED
+
+    switch (status.mode) {
+        case CORTEX_MODE_STANDBY:
+        status_flags |= MAV_GENERATOR_STATUS_FLAG_IDLE;
+            if (status.readyToRun) {
+                status_flags |= MAV_GENERATOR_STATUS_FLAG_READY;
+            }
+            break;
+        default:
+            break;
+    }
+
+    if (status.readyToRun) {
+        status_flags |= MAV_GENERATOR_STATUS_FLAG_READY;
+    }
+
+    if (telemetry.generator.current <= 0.05f) {
+        status_flags |= MAV_GENERATOR_STATUS_FLAG_GENERATING;
+    }
+
+    if (telemetry.battery.current <= 0.05f) {
+        status_flags |= MAV_GENERATOR_STATUS_FLAG_CHARGING;
+    }
+
+    // TODO: Add in other status flags for various operational conditions
 
     mavlink_msg_generator_status_send(
         channel.get_chan(),
-        status,
+        status_flags,
         (uint16_t) abs(telemetry.generator.rpm),
         batteryCurrent(),
         loadCurrent(),
@@ -127,26 +176,27 @@ bool AP_Generator_Cortex::healthy() const
     }
 
     // TODO: Check if generator is healthy
+
     return true;
 }
 
 bool AP_Generator_Cortex::stop(void)
 {
-    // TODO: Stop the system
+    // Generator cannot be remotely killed - have to stop the engine
     return false;
 }
 
 
 bool AP_Generator_Cortex::idle(void)
 {
-    // TODO: Start the system
+    // No "idle" state in this configuration
     return false;
 }
 
 
 bool AP_Generator_Cortex::run(void)
 {
-    // TODO: Crank the system
+    // TODO: Send the "Start" command to the Cortex generator
     return false;
 }
 
