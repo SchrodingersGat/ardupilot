@@ -66,6 +66,9 @@ public:
     bool transfer_fullduplex(const uint8_t *send, uint8_t *recv,
                              uint32_t len) override;
 
+    /* See AP_HAL::SPIDevice::transfer_fullduplex() */
+    bool transfer_fullduplex(uint8_t *send_recv, uint32_t len) override;
+
     /* See AP_HAL::Device::get_semaphore() */
     AP_HAL::Semaphore *get_semaphore() override;
 
@@ -110,7 +113,7 @@ public:
     }
 
     /* AP_HAL::SPIDeviceManager implementation */
-    AP_HAL::OwnPtr<AP_HAL::SPIDevice> get_device(const char *name) override;
+    AP_HAL::SPIDevice *get_device_ptr(const char *name) override;
 
     /*
      * Stop all SPI threads and block until they are finalized. This doesn't
@@ -127,7 +130,7 @@ public:
 
 protected:
     void _unregister(SPIBus &b);
-    AP_HAL::OwnPtr<AP_HAL::SPIDevice> _create_device(SPIBus &b, SPIDesc &device_desc) const;
+    AP_HAL::SPIDevice *_create_device(SPIBus &b, SPIDesc &device_desc) const;
 
     std::vector<SPIBus*> _buses;
 

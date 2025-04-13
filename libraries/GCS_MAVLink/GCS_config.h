@@ -4,6 +4,7 @@
 #include <AP_Relay/AP_Relay_config.h>
 #include <AP_Mission/AP_Mission_config.h>
 #include <AP_InertialSensor/AP_InertialSensor_config.h>
+#include <AP_Arming/AP_Arming_config.h>
 
 #ifndef HAL_GCS_ENABLED
 #define HAL_GCS_ENABLED 1
@@ -109,4 +110,8 @@
 
 #ifndef AP_MAVLINK_MSG_VIDEO_STREAM_INFORMATION_ENABLED
 #define AP_MAVLINK_MSG_VIDEO_STREAM_INFORMATION_ENABLED HAL_GCS_ENABLED
+#endif
+
+#ifndef AP_MAVLINK_MSG_FLIGHT_INFORMATION_ENABLED
+#define AP_MAVLINK_MSG_FLIGHT_INFORMATION_ENABLED HAL_GCS_ENABLED && AP_ARMING_ENABLED
 #endif

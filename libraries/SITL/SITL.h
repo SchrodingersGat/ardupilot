@@ -449,6 +449,8 @@ public:
 
     AP_Int8 gnd_behav;
 
+    AP_Enum<Rotation> imu_orientation;
+
     struct {
         AP_Int8 enable;     // 0: disabled, 1: roll and pitch, 2: roll, pitch and heave
         AP_Float length;    // m
@@ -604,6 +606,12 @@ public:
     // This gives more realistic data rates for testing links
     void set_stop_MAVLink_sim_state() { stop_MAVLink_sim_state = true; }
     bool stop_MAVLink_sim_state;
+
+    /*
+      used by scripting to control simulated aircraft position
+     */
+    bool set_pose(uint8_t instance, const Location &loc, const Quaternion &quat,
+                  const Vector3f &velocity_ef, const Vector3f &gyro_rads);
 };
 
 } // namespace SITL

@@ -221,6 +221,11 @@ public:
     // Command an angular velocity with angular velocity smoothing using rate loops only with integrated rate error stabilization
     virtual void input_rate_bf_roll_pitch_yaw_3(float roll_rate_bf_cds, float pitch_rate_bf_cds, float yaw_rate_bf_cds);
 
+    // set the body frame target rates to the specified rates, used by the
+    // quadplane code when we want to slave the VTOL controller rates to
+    // the fixed wing rates
+    void input_rate_bf_roll_pitch_yaw_no_shaping(float roll_rate_bf_cds, float pitch_rate_bf_cds, float yaw_rate_bf_cds);
+
     // Command an angular step (i.e change) in body frame angle
     virtual void input_angle_step_bf_roll_pitch_yaw(float roll_angle_step_bf_cd, float pitch_angle_step_bf_cd, float yaw_angle_step_bf_cd);
 
@@ -614,35 +619,7 @@ protected:
 
     static AC_AttitudeControl *_singleton;
 
-protected:
-    /*
-      state of control monitoring
-    */
-    struct {
-        float rms_roll_P;
-        float rms_roll_D;
-        float rms_pitch_P;
-        float rms_pitch_D;
-        float rms_yaw;
-    } _control_monitor;
-
-    // update state in ControlMonitor
-    void control_monitor_filter_pid(float value, float &rms_P);
-    void control_monitor_update(void);
-
 public:
-    // log a CTRL message
-    void control_monitor_log(void) const;
-
-    // return current RMS controller filter for each axis
-    float control_monitor_rms_output_roll(void) const;
-    float control_monitor_rms_output_roll_P(void) const;
-    float control_monitor_rms_output_roll_D(void) const;
-    float control_monitor_rms_output_pitch_P(void) const;
-    float control_monitor_rms_output_pitch_D(void) const;
-    float control_monitor_rms_output_pitch(void) const;
-    float control_monitor_rms_output_yaw(void) const;
-
     // structure for angle and/or rate target
     enum class HeadingMode {
         Angle_Only,

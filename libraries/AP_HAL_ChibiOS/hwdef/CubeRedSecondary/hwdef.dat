@@ -7,8 +7,6 @@ MCU STM32H7xx STM32H757xx
 define CORE_CM7
 define SMPS_PWR
 
-env OPTIMIZE -Os
-
 # crystal frequency
 OSCILLATOR_HZ 24000000
 
@@ -157,4 +155,4 @@ define DEFAULT_SERIAL4_PROTOCOL SerialProtocol_RCIN
 
 define AP_NETWORKING_BACKEND_PPP 1
 
-define MAV_SYSTEM_ID 3
+define MAV_SYSTEM_ID 2

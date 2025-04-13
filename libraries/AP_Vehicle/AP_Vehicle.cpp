@@ -505,6 +505,7 @@ void AP_Vehicle::setup()
 
 #if AP_FENCE_ENABLED
     fence.init();
+    fence_init();
 #endif
 
 #if AP_CUSTOMROTATIONS_ENABLED
@@ -1078,8 +1079,12 @@ void AP_Vehicle::one_Hz_update(void)
     scripting.update();
 #endif
 
-#if HAL_LOGGING_ENABLED
+#if HAL_LOGGING_ENABLED && HAL_UART_STATS_ENABLED
+    // Log data rates of physical and virtual serial ports
     hal.util->uart_log();
+#if AP_SERIALMANAGER_REGISTER_ENABLED
+    serial_manager.registered_ports_log();
+#endif
 #endif
 
 }
@@ -1148,6 +1153,13 @@ bool AP_Vehicle::block_GCS_mode_change(uint8_t mode_num, const uint8_t *mode_lis
     return false;
 }
 #endif
+
+#if AP_FENCE_ENABLED
+void AP_Vehicle::fence_init()
+{
+    hal.scheduler->register_io_process(FUNCTOR_BIND_MEMBER(&AP_Vehicle::fence_run_checks, void));
+}
+#endif  // AP_FENCE_ENABLED
 
 AP_Vehicle *AP_Vehicle::_singleton = nullptr;
 

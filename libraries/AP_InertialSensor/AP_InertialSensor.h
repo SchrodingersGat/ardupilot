@@ -3,8 +3,6 @@
 #include "AP_InertialSensor_config.h"
 
 // Gyro and Accelerometer calibration criteria
-#define AP_INERTIAL_SENSOR_ACCEL_TOT_MAX_OFFSET_CHANGE  4.0f
-#define AP_INERTIAL_SENSOR_ACCEL_MAX_OFFSET             250.0f
 #define AP_INERTIAL_SENSOR_ACCEL_VIBE_FLOOR_FILT_HZ     5.0f    // accel vibration floor filter hz
 #define AP_INERTIAL_SENSOR_ACCEL_VIBE_FILT_HZ           2.0f    // accel vibration filter hz
 #define AP_INERTIAL_SENSOR_ACCEL_PEAK_DETECT_TIMEOUT_MS 500     // peak-hold detector timeout
@@ -157,6 +155,9 @@ public:
     // get observed sensor rates, including any internal sampling multiplier
     uint16_t get_gyro_rate_hz(uint8_t instance) const { return uint16_t(_gyro_raw_sample_rates[instance] * _gyro_over_sampling[instance]); }
     uint16_t get_accel_rate_hz(uint8_t instance) const { return uint16_t(_accel_raw_sample_rates[instance] * _accel_over_sampling[instance]); }
+
+    // validate backend sample rates
+    bool pre_arm_check_gyro_backend_rate_hz(char* fail_msg, uint16_t fail_msg_len) const;
 
     // FFT support access
 #if HAL_GYROFFT_ENABLED
@@ -607,9 +608,6 @@ private:
     INS_PARAM_WRAPPER(_accel_offset);
     INS_PARAM_WRAPPER(_gyro_offset);
     INS_PARAM_WRAPPER(_accel_pos);
-
-    // accelerometer max absolute offsets to be used for calibration
-    float _accel_max_abs_offsets[INS_MAX_INSTANCES];
 
     // accelerometer and gyro raw sample rate in units of Hz
     float  _accel_raw_sample_rates[INS_MAX_INSTANCES];

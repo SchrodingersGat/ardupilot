@@ -213,7 +213,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @User: Advanced
     GSCALAR(serial_number, "BRD_SERIAL_NUM", 0),
 
-#ifdef HAL_PERIPH_ENABLE_BUZZER_WITHOUT_NOTIFY
+#if AP_PERIPH_BUZZER_WITHOUT_NOTIFY_ENABLED
     // @Param: BUZZER_VOLUME
     // @DisplayName: Buzzer volume
     // @Description: Control the volume of the buzzer
@@ -283,7 +283,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     GSCALAR(baro_enable, "BARO_ENABLE", AP_PERIPH_BARO_ENABLE_DEFAULT),
 #endif
 
-#ifdef AP_PERIPH_HAVE_LED_WITHOUT_NOTIFY
+#if AP_PERIPH_HAVE_LED_WITHOUT_NOTIFY
     // @Param: LED_BRIGHTNESS
     // @DisplayName: LED Brightness
     // @Description: Select the RGB LED brightness level.
@@ -491,14 +491,7 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     GSCALAR(log_bitmask,    "LOG_BITMASK",          4),
 #endif
 
-#if HAL_GCS_ENABLED
-    // @Param: SYSID_THISMAV
-    // @DisplayName: MAVLink system ID of this vehicle
-    // @Description: Allows setting an individual system id for this vehicle to distinguish it from others on the same network
-    // @Range: 1 255
-    // @User: Advanced
-    GSCALAR(sysid_this_mav,         "SYSID_THISMAV",  MAV_SYSTEM_ID),
-#endif
+    // SYSID_THISMAV was here
 
 #if HAL_GCS_ENABLED || defined(HAL_PERIPH_SHOW_SERIAL_MANAGER_PARAMS)
     // @Group: SERIAL
@@ -735,6 +728,18 @@ const AP_Param::Info AP_Periph_FW::var_info[] = {
     // @Group: INS
     // @Path: ../libraries/AP_InertialSensor/AP_InertialSensor.cpp
     GOBJECT(imu, "INS", AP_InertialSensor),
+#endif
+
+#if AP_DAC_ENABLED
+    // @Group: DAC
+    // @Path: ../libraries/AP_DAC/AP_DAC.cpp
+    GOBJECT(dac, "DAC", AP_DAC),
+#endif
+
+#if HAL_GCS_ENABLED
+    // @Group: MAV
+    // @Path: ../libraries/GCS_MAVLink/GCS.cpp
+    GOBJECT(_gcs,           "MAV",  GCS),
 #endif
 
     AP_VAREND
