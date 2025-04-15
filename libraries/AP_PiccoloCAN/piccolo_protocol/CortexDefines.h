@@ -44,6 +44,7 @@ typedef struct
     bool    powerLimit;      //!< Set if generator power limit is currently active
     bool    shorePower;      //!< Set if CHPS is running from shore power
     bool    readyToRun;      //!< Set if the CHPS is ready to run the engine
+    bool    inhibited;       //!< Set if the CHPS is hardware inhibited
     bool    calibrationMode; //!< Set if the CHPS is in calibration mode
     uint8_t batteryCharger;  //!< Battery charger enabled status
     uint8_t avionicsRail;    //!< Avionics output rail enabled status

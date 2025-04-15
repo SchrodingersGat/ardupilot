@@ -33,19 +33,19 @@ extern "C" {
  * 
  * The protocol API enumeration is incremented anytime the protocol is changed
  * in a way that affects compatibility with earlier versions of the protocol.
- * The protocol enumeration for this version is: 6
+ * The protocol enumeration for this version is: 7
  * 
- * The protocol version is 1.0
+ * The protocol version is 1.1
  */
 
 #include <stdint.h>
 #include <stdbool.h>
 
 //! \return the protocol API enumeration
-#define getCortexApi() 6
+#define getCortexApi() 7
 
 //! \return the protocol version string
-#define getCortexVersion() "1.0"
+#define getCortexVersion() "1.1"
 
 /*!
  * Cortex packet ID values
