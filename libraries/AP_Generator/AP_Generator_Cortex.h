@@ -60,6 +60,8 @@ public:
 
     bool is_connected(void) const;
 
+    bool is_inhibited(void) const;
+
     // healthy returns true if the generator is not present, or it is
     // present, providing telemetry and not indicating an errors.
     bool healthy() const override;

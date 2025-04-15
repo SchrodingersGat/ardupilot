@@ -94,13 +94,15 @@ void AP_Generator_Cortex::update()
 
 bool AP_Generator_Cortex::pre_arm_check(char *failmsg, uint8_t failmsg_len) const
 {
-    // TODO: Pre-arm checks
     if (!is_connected()) {
         snprintf(failmsg, failmsg_len, "Generator is not connected");
         return false;
     }
 
-    // TODO: Check hardware inhibit
+    if (is_inhibited()) {
+        snprintf(failmsg, failmsg_len, "Generator is inhibited");
+        return false;
+    }
 
     return true;
 }
@@ -172,6 +174,12 @@ bool AP_Generator_Cortex::is_connected(void) const
     const uint32_t now = AP_HAL::millis();
 
     return (now - last_reading_ms) < 2000;
+}
+
+
+bool AP_Generator_Cortex::is_inhibited(void) const
+{
+    return telemetry.status.status.inhibited;
 }
 
 
