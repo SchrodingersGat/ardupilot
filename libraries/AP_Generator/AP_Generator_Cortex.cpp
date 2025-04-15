@@ -117,14 +117,20 @@ void AP_Generator_Cortex::send_generator_status(const GCS_MAVLINK &channel)
     // Copy status flags from MAV_GENERATOR_STATUS_FLAG enum
     const Cortex_StatusBits_t &status = telemetry.status.status;
 
-    // TODO: Check for inihibit state, and set MAV_GENERATOR_STATUS_FLAG_START_INHIBITED
-
+    // Check inihibit state
+    if (status.inhibited) {
+        status_flags |= MAV_GENERATOR_STATUS_FLAG_START_INHIBITED;
+    }
+    
     switch (status.mode) {
         case CORTEX_MODE_STANDBY:
-        status_flags |= MAV_GENERATOR_STATUS_FLAG_IDLE;
+            status_flags |= MAV_GENERATOR_STATUS_FLAG_IDLE;
             if (status.readyToRun) {
                 status_flags |= MAV_GENERATOR_STATUS_FLAG_READY;
             }
+            break;
+        case CORTEX_MODE_RUNNING:
+            status_flags |= MAV_GENERATOR_STATUS_FLAG_GENERATING;
             break;
         default:
             break;
