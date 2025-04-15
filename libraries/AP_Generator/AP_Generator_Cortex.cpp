@@ -211,6 +211,7 @@ bool AP_Generator_Cortex::idle(void)
 bool AP_Generator_Cortex::run(void)
 {
     // TODO: Send the "Start" command to the Cortex generator
+    // TODO: Need to work out how to hook into PiccoloCAN from here
     return false;
 }
 
